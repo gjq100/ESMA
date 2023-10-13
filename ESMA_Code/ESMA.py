@@ -17,7 +17,7 @@ parser.add_argument('--state', type=str, default='train_model', choices=['pretra
 parser.add_argument('--Source_Model', type=str, default='ResNet50',
                     help='Source Model')
 parser.add_argument('--epoch', type=int, default=300, help='Number of epochs')
-parser.add_argument('--batch_size', type=int, default=28, help='Batch size')
+parser.add_argument('--batch_size', type=int, default=25, help='Batch size')
 parser.add_argument('--channel', type=int, default=32, help='Channel value')
 parser.add_argument('--channel_mult', nargs='+', type=int, default=[1, 2, 3, 4], 
                     help='List of channel multipliers')
@@ -30,7 +30,7 @@ parser.add_argument('--training_load_weight', type=str, default='ckpt_pretrained
                     help='Weight file for training')
 parser.add_argument('--test_load_weight', type=str, default='ckpt_299_ResNet50_.pt', 
                     help='Weight file for testing')
-parser.add_argument('--q', type=int, default=5, help='q for screening')
+parser.add_argument('--q', type=int, default=2, help='q for screening')
 args = parser.parse_args()
 
 
