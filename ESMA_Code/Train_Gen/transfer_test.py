@@ -8,27 +8,32 @@ from .Generator import Generator
 from .gaussian_smoothing import get_gaussian_kernel
 import timm
 
-def pretrained_model(model_name,pretrained=True):
+def pretrained_model(model_name, pretrained=True):
 
     if model_name == 'ResNet50':
-        model = torchvision.models.resnet50(pretrained=pretrained)
+        model = torchvision.models.resnet50(pretrained=True)
     elif model_name == "ResNet152":
-        model = torchvision.models.resnet152(pretrained=pretrained)
+        model = torchvision.models.resnet152(pretrained=True)
     elif model_name == "vgg19bn":
-        model = torchvision.models.vgg19_bn(pretrained=pretrained)
+        model = torchvision.models.vgg19_bn(pretrained=True)
     elif model_name == 'DenseNet121':
-        model = torchvision.models.densenet121(pretrained=pretrained)
+        model = torchvision.models.densenet121(pretrained=True)
     elif model_name == "incres_v2":
-        model = timm.create_model("inception_resnet_v2", pretrained=pretrained)
+        model = timm.create_model("inception_resnet_v2", pretrained=True)
     elif model_name == "ens_adv_inception_resnet_v2":
-        model = timm.create_model("ens_adv_inception_resnet_v2", pretrained=pretrained)
+        model = timm.create_model("ens_adv_inception_resnet_v2", pretrained=True)
     elif model_name == "inception_v3":
-        model = timm.create_model("inception_v3", pretrained=pretrained)
+        model = timm.create_model("inception_v3", pretrained=True)
     elif model_name == "inception_v4":
-        model = timm.create_model("inception_v4", pretrained=pretrained)
+        model = timm.create_model("inception_v4", pretrained=True)
+    elif model_name == "adv_inc_v3":
+        model = timm.create_model('inception_v3.tf_adv_in1k', pretrained=True)
+    elif model_name == 'vit':
+        model = timm.create_model('vit_base_patch16_224.augreg_in1k', pretrained=True)
     else:
         raise ValueError(f"Not supported model name. {model_name}")
     return model
+
 
 def normalize(t):
     mean = [0.485, 0.456, 0.406]
@@ -39,7 +44,7 @@ def normalize(t):
     return t
 
 def advtest(modelConfig: Dict):
-    device = torch.device('cuda:0')
+    device = torch.device(modelConfig["device"])
     scale_size = 256
     img_size = 224
     src = 'imagenet_val'
@@ -64,10 +69,10 @@ def advtest(modelConfig: Dict):
     generator.load_state_dict(ckpt,strict=False)
     print("model load weight done.")
     generator.eval()
-    modellist = ["ResNet50","ResNet152","vgg19bn",'DenseNet121',"incres_v2","inception_v3","inception_v4"]
+    modellist = ["ResNet50","ResNet152","vgg19bn",'DenseNet121',"incres_v2","inception_v3","inception_v4", "adv_inc_v3", "ens_adv_inception_resnet_v2", "vit" ]
     target_model_list = [model for model in modellist if model != modelConfig["Source_Model"]]
     for name in target_model_list:
-        target_model = pretrained_model(name,pretrained=True)
+        target_model = pretrained_model(name,pretrained=True).to(device)
         target_model.load_state_dict(torch.load("models/"+name))
         target_model.eval()
         targeted_attack(generator,name,target_model,eps=16/255,val_set=val_set,targets=targets,device=modelConfig["device"])
@@ -102,11 +107,8 @@ def attack(generator,target_model,target,eps,val_set,targets,device):
             total += imgs.shape[0]
             acc_batch += torch.sum(torch.eq(out.argmax(dim=-1),target_label)).item()
             total_batch += imgs.shape[0]    
-            print('%d-----acc_batch:'%(target_label),acc_batch/total_batch)
             acc_batch = 0
             total_batch = 0
-
-        print('%d----------acc:'%(target_label),acc/total)
     return(acc/total)
 def targeted_attack(generator,name,target_model,eps,val_set,targets,device):
     acc = 0.0
