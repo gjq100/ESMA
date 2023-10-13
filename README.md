@@ -9,16 +9,22 @@ The following prerequisites we used:
 
 To pretrain the embeddings using a specific source model (e.g., ResNet50), run the following command:
 
-'''python ESMA.py --batch_size 25 --Source_Model ResNet50 --state pretrain_embedding'''
+'''
+python ESMA.py --batch_size 25 --Source_Model ResNet50 --state pretrain_embedding
+'''
 
 ### Step 2: Train ESMA
 
 To train the ESMA model using the pre-trained embedding, run the following command:
 
-'''python ESMA.py --batch_size 25 --Source_Model ResNet50 --epoch 300 --training_load_weight ckpt_pretrained_ResNet50_.pt --q 2 --state train_model'''
+'''
+python ESMA.py --batch_size 25 --Source_Model ResNet50 --epoch 300 --training_load_weight ckpt_pretrained_ResNet50_.pt --q 2 --state train_model
+'''
 
 ### Step 3: Adversarial Testing
 
 To perform adversarial testing using the trained ESMA model, run the following command:
 
-'''python ESMA.py --batch_size 25 --Source_Model ResNet50 --test_load_weight ckpt_299_ResNet50_.pt --state advtest'''
+'''
+python ESMA.py --batch_size 25 --Source_Model ResNet50 --test_load_weight ckpt_299_ResNet50_.pt --state advtest
+'''
