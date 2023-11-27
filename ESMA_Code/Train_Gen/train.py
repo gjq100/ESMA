@@ -103,7 +103,7 @@ def train(modelConfig: Dict):
         if label in targets:
             source_samples_match.append((img_name, label))
     train_set_match.samples = source_samples_match
-    contain_embeddings = ['downblocks','middleblocks','upblocks','se']
+    contain_embeddings = ['downblocks','middleblocks','upblocks','gct']
 
     generator = Generator( num_target=len(targets), ch=modelConfig["channel"], ch_mult=modelConfig["channel_mult"],
                      num_res_blocks=modelConfig["num_res_blocks"]).to(device)
@@ -120,7 +120,7 @@ def train(modelConfig: Dict):
             parameter.requires_grad = False
         for m in generator._modules.items():
             if  m[0] in contain_embeddings:
-                if m[0] != 'se':
+                if m[0] != 'gct':
                     for i,layers in enumerate(m[1]):
                         if 'Sample' not in type(layers).__name__ :
                             for name, parameter in layers.target_proj.named_parameters():
@@ -143,7 +143,7 @@ def train(modelConfig: Dict):
             parameter.requires_grad = True
         for m in generator._modules.items():
             if  m[0] in contain_embeddings:
-                if m[0] != 'se':
+                if m[0] != 'gct':
                     for i,layers in enumerate(m[1]):
                         if 'Sample' not in type(layers).__name__ :
                             for name, parameter in layers.target_proj.named_parameters():
@@ -179,7 +179,7 @@ def train(modelConfig: Dict):
             sum_loss = 0.01*torch.norm(emb)
             for m in generator._modules.items():
                 if  m[0] in contain_embeddings:
-                    if m[0] != 'se':
+                    if m[0] != 'gct':
                         for i,layers in enumerate(m[1]):
                             if 'Sample' not in type(layers).__name__ :
                                 proj_emb = layers.target_proj(emb)
