@@ -200,7 +200,7 @@ class Generator(nn.Module):
 
         assert len(chs) == 0
 
-        self.se = GCT(num_channels=now_ch,tdim=tdim)
+        self.gct = GCT(num_channels=now_ch,tdim=tdim)
         
         self.tail = nn.Sequential(
             nn.GroupNorm(16, now_ch),
@@ -239,7 +239,7 @@ class Generator(nn.Module):
                 h = torch.cat([h, hs.pop()], dim=1)
             h = layer(h,  targetemb)
 
-        h = self.se(h)
+        h = self.gct(h)
         h = self.tail(h)
 
 
