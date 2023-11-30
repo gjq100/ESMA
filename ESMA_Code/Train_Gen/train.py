@@ -194,7 +194,6 @@ def train(modelConfig: Dict):
                         kl_loss += double_kl_div(features_distances,distance_matrix)+5*double_kl_div(features_cosine,cosine_matrix)
                         sum_loss += 0.01*torch.norm(proj_emb)
             sum_loss += kl_loss
-            optimizer.zero_grad()
             sum_loss.backward()
             if e%1000 == 0:
                 print('%d th epoch: loss is %2f'%(e,kl_loss.item()))
