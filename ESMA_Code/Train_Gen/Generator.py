@@ -66,8 +66,6 @@ class AttnBlock(nn.Module):
         k,v = map(lambda t: rearrange(t, 'b c x y -> b c (x y)'),kv)
         q = F.softmax(k,dim=-2)
         k = F.softmax(k,dim=-1)
-        #q = F.sigmoid(k)
-        #k = F.sigmoid(k)
         q = q*q_scale
         context = torch.einsum('b d n, b e n -> b d e',k,v)
         assert list(context.shape) == [B, C, C]
