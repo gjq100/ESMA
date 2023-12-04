@@ -128,10 +128,6 @@ class GCT(nn.Module):
         self.epsilon = epsilon
         self.mode = mode
         self.after_relu = after_relu
-        self.target_proj = nn.Sequential(
-            nn.GELU(),
-            nn.Linear(tdim, num_channels),
-        )
     def forward(self, x):
         b, c, h, w = x.shape
         if self.mode == 'l2':
