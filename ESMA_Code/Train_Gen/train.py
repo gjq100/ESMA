@@ -103,7 +103,7 @@ def train(modelConfig: Dict):
         if label in targets:
             source_samples_match.append((img_name, label))
     train_set_match.samples = source_samples_match
-    contain_embeddings = ['downblocks','middleblocks','upblocks','gct']
+    contain_embeddings = ['downblocks','middleblocks','upblocks']
 
     generator = Generator( num_target=len(targets), ch=modelConfig["channel"], ch_mult=modelConfig["channel_mult"],
                      num_res_blocks=modelConfig["num_res_blocks"]).to(device)
@@ -120,14 +120,11 @@ def train(modelConfig: Dict):
             parameter.requires_grad = False
         for m in generator._modules.items():
             if  m[0] in contain_embeddings:
-                if m[0] != 'gct':
-                    for i,layers in enumerate(m[1]):
-                        if 'Sample' not in type(layers).__name__ :
-                            for name, parameter in layers.target_proj.named_parameters():
-                                parameter.requires_grad = False
-                else:
-                    for name, parameter in m[1].target_proj.named_parameters():
-                        parameter.requires_grad = False
+                for i,layers in enumerate(m[1]):
+                    if 'Sample' not in type(layers).__name__ :
+                        for name, parameter in layers.target_proj.named_parameters():
+                            parameter.requires_grad = False
+                
     else:
         source_samples = []
         for img_name, label in train_set_match.samples:
@@ -143,14 +140,10 @@ def train(modelConfig: Dict):
             parameter.requires_grad = True
         for m in generator._modules.items():
             if  m[0] in contain_embeddings:
-                if m[0] != 'gct':
-                    for i,layers in enumerate(m[1]):
-                        if 'Sample' not in type(layers).__name__ :
-                            for name, parameter in layers.target_proj.named_parameters():
-                                parameter.requires_grad = True
-                else:
-                    for name, parameter in m[1].target_proj.named_parameters():
-                        parameter.requires_grad = True
+                for i,layers in enumerate(m[1]):
+                    if 'Sample' not in type(layers).__name__ :
+                        for name, parameter in layers.target_proj.named_parameters():
+                            parameter.requires_grad = True
         features = torch.tensor(feature_extraction(source_model,dataloader,device,targets)).to(device)
 
     optimizer = torch.optim.AdamW(
@@ -179,20 +172,13 @@ def train(modelConfig: Dict):
             sum_loss = 0.01*torch.norm(emb)
             for m in generator._modules.items():
                 if  m[0] in contain_embeddings:
-                    if m[0] != 'gct':
-                        for i,layers in enumerate(m[1]):
-                            if 'Sample' not in type(layers).__name__ :
-                                proj_emb = layers.target_proj(emb)
-                                distance_matrix = torch.norm(proj_emb[:,None]-proj_emb,dim=2,p=2)
-                                cosine_matrix = torch.matmul(F.normalize(proj_emb,dim=-1),F.normalize(proj_emb,dim=-1).T)
-                                kl_loss += double_kl_div(features_distances,distance_matrix)+5*double_kl_div(features_cosine,cosine_matrix)
-                                sum_loss += 0.01*torch.norm(proj_emb)
-                    else:
-                        proj_emb = m[1].target_proj(emb)
-                        distance_matrix = torch.norm(proj_emb[:,None]-proj_emb,dim=2,p=2)
-                        cosine_matrix = torch.matmul(F.normalize(proj_emb,dim=-1),F.normalize(proj_emb,dim=-1).T)
-                        kl_loss += double_kl_div(features_distances,distance_matrix)+5*double_kl_div(features_cosine,cosine_matrix)
-                        sum_loss += 0.01*torch.norm(proj_emb)
+                    for i,layers in enumerate(m[1]):
+                        if 'Sample' not in type(layers).__name__ :
+                            proj_emb = layers.target_proj(emb)
+                            distance_matrix = torch.norm(proj_emb[:,None]-proj_emb,dim=2,p=2)
+                            cosine_matrix = torch.matmul(F.normalize(proj_emb,dim=-1),F.normalize(proj_emb,dim=-1).T)
+                            kl_loss += double_kl_div(features_distances,distance_matrix)+5*double_kl_div(features_cosine,cosine_matrix)
+                            sum_loss += 0.01*torch.norm(proj_emb)
             sum_loss += kl_loss
             sum_loss.backward()
             if e%1000 == 0:
