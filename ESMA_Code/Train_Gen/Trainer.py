@@ -39,7 +39,7 @@ class GeneratorTrainer(nn.Module):
 
         attx = torch.min(torch.max(perturbated_imgs, x-self.eps), x + self.eps)
         attx = self.norm(torch.clamp(attx, 0.0, 1.0))
-        mdatt = self.source_model(self.norm(attx))
+        mdatt = self.source_model(attx)
         mdmat = x_match
         loss = F.smooth_l1_loss(mdatt,mdmat,reduction='none')
 
