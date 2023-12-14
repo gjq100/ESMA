@@ -147,7 +147,7 @@ def train(modelConfig: Dict):
         features = torch.tensor(feature_extraction(source_model,dataloader,device,targets)).to(device)
 
     optimizer = torch.optim.AdamW(
-        filter(lambda p: p.requires_grad, generator.parameters()), lr=modelConfig["lr"],weight_decay=5e-5)
+        filter(lambda p: p.requires_grad, generator.parameters()), lr=modelConfig["lr"], weight_decay=5e-5)
 
     try:
         features
@@ -158,7 +158,7 @@ def train(modelConfig: Dict):
     if features_exist:
 
         optimizer = torch.optim.AdamW(
-        filter(lambda p: p.requires_grad, generator.parameters()), lr=2e-5,weight_decay=5e-5)
+        filter(lambda p: p.requires_grad, generator.parameters()), lr=1.5e-5, weight_decay=5e-5)
         
         for e in range(modelConfig["epoch"]):
             emb = generator.target_embedding(torch.tensor([0,1,2,3,4,5,6,7,8,9],device=device))
