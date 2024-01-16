@@ -6,6 +6,7 @@ The following prerequisites we used:
 - torchvision (version 0.12.0+cu113)
 - timm (version 0.9.2)
 ### Step 1: Pretrain Embedding
+The classification model we used was trained by fine-tuning a pre-trained model using the SGD optimizer with a learning rate of 1e-3 on the ImageNet dataset. We employed early stopping with a patience of 5 during training.
 
 To pretrain the embeddings using a specific source model (e.g., ResNet50), run the following command:
 
